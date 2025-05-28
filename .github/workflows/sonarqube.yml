@@ -5,38 +5,50 @@ on:
       - main
 
 jobs:
-  sonarqube:
+  sonarqubeScan1:
+    name: SonarQubeScan1
     runs-on: ubuntu-latest
-    env:
-      SONAR_SCANNER_VERSION: 7.1.0.4889
-      SONAR_SCANNER_OS: linux
-      SONAR_ARCHITECHTURE: x64
-      SONAR_PROJECT_KEY: github-actions-test-sonar
-      SONAR_URL: http://localhost:9000
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
+      - uses: actions/checkout@v3
         with:
-          python-version: '3.8'
-
-      - name: Cache SonarScanner
-        uses: actions/cache@v3
+          fetch-depth: 0
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
-          path: ~/.sonar/cache
-          key: ${{ runner.os }}-sonar
+          projectBaseDir: repo1/
 
-      - name: Download SonarScanner CLI
-        run: |
-          curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-${{ env.SONAR_SCANNER_OS }}-${{ env.SONAR_ARCHITECHTURE }}.zip
-          unzip sonar-scanner.zip
+  # sonarqube:
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     SONAR_SCANNER_VERSION: 7.1.0.4889
+  #     SONAR_SCANNER_OS: linux
+  #     SONAR_ARCHITECHTURE: x64
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
 
-      - name: Run SonarScanner
-        run: |
-          ./sonar-scanner-*/bin/sonar-scanner `
-            -D"sonar.projectKey={SONAR_PROJECT_KEY}" `
-            -D"sonar.sources=." `
-            -D"sonar.host.url={SONAR_URL}" `
-            -D"sonar.login=${{ secrets.SONAR_TEST }}"
+  #     - name: Setup Python
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: '3.8'
+
+  #     - name: Cache SonarScanner
+  #       uses: actions/cache@v3
+  #       with:
+  #         path: ~/.sonar/cache
+  #         key: ${{ runner.os }}-sonar
+
+  #     - name: Download SonarScanner CLI
+  #       run: |
+  #         curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-${{ env.SONAR_SCANNER_OS }}-${{ env.SONAR_ARCHITECHTURE }}.zip
+  #         unzip sonar-scanner.zip
+
+  #     - name: Run SonarScanner
+  #       run: |
+  #         .sonar-scanner \
+  #           -Dsonar.organization=github-actions-test-sonar \
+  #           -Dsonar.projectKey=Mikado1405_agenticSeek_copy \
+  #           -Dsonar.sources=. \
+  #           -Dsonar.host.url=https://sonarcloud.io
