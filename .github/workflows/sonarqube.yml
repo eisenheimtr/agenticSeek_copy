@@ -6,7 +6,7 @@ on:
 
 jobs:
   sonarqube:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-lastest
     env:
       SONAR_SCANNER_VERSION: 7.1.0.4889
       SONAR_SCANNER_OS: linux
@@ -19,7 +19,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.8.10'
+          python-version: '3.8'
 
       - name: Cache SonarScanner
         uses: actions/cache@v3
