@@ -6,7 +6,7 @@ on:
 
 jobs:
   sonarqube:
-    runs-on: ubuntu-lastest
+    runs-on: ubuntu-latest
     env:
       SONAR_SCANNER_VERSION: 7.1.0.4889
       SONAR_SCANNER_OS: linux
