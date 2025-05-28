@@ -1,11 +1,4 @@
 name: SonarQube Analysis (Python)
-env:
-  SONAR_SCANNER_VERSION: 7.1.0.4889
-  SONAR_SCANNER_OS: linux
-  SONAR_PROCJECT_KEY: github-actions-test-sonar
-  SONAR_TOKEN: { secrets.SONAR_TEST }
-  SONAR_URL: http://localhost:9000/
-
 on:
   push:
     branches:
@@ -14,6 +7,11 @@ on:
 jobs:
   sonarqube:
     runs-on: ubuntu-latest
+    env:
+    SONAR_SCANNER_VERSION: 7.1.0.4889
+    SONAR_SCANNER_OS: linux
+    SONAR_PROCJECT_KEY: github-actions-test-sonar
+    SONAR_URL: http://localhost:9000/
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -36,7 +34,7 @@ jobs:
 
       - name: Run SonarScanner
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TEST }}
         run: |
           ./sonar-scanner-*/bin/sonar-scanner \
             -Dsonar.projectKey={{ SONAR_PROCJECT_KEY }} \
