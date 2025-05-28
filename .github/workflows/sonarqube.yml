@@ -36,7 +36,7 @@ jobs:
       - name: Run SonarScanner
         run: |
           ./sonar-scanner-*/bin/sonar-scanner `
-            -D"sonar.projectKey={{ SONAR_PROCJECT_KEY }}" `
+            -D"sonar.projectKey={SONAR_PROCJECT_KEY}" `
             -D"sonar.sources=." `
-            -D"sonar.host.url={{ SONAR_URL }}" `
-            -D"sonar.login=${{ secrets.SONAR_TEST }}"
+            -D"sonar.host.url={SONAR_URL}" `
+            -D"sonar.login=${secrets.SONAR_TEST}"
