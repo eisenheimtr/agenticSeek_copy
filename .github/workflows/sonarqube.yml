@@ -1,0 +1,39 @@
+env:
+  SONAR_SCANNER_VERSION: 7.1.0.4889
+  SONAR_SCANNER_OS: linux
+  SONAR_PROCJECT_KEY: github-actions-test-sonar
+  SONAR_TOKEN: { secrets.SONAR_TEST }
+  SONAR_URL: http://localhost:9000/
+
+jobs:
+  sonarqube:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.8.10'
+
+      - name: Cache SonarScanner
+        uses: actions/cache@v3
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+
+      - name: Download SonarScanner CLI
+        run: |
+          curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-${{ env.SONAR_SCANNER_OS }}.zip
+          unzip sonar-scanner.zip
+
+      - name: Run SonarScanner
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: |
+          ./sonar-scanner-*/bin/sonar-scanner \
+            -Dsonar.projectKey={{ SONAR_PROCJECT_KEY }} \
+            -Dsonar.sources=. \
+            -Dsonar.host.url={{ SONAR_URL }} \
+            -Dsonar.login=${ SONAR_TOKEN }
