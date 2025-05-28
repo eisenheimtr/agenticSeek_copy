@@ -25,21 +25,20 @@ jobs:
       # Download và giải nén SonarScanner CLI (nếu chưa có trên runner)
       - name: Download SonarScanner
         run: |
-          powershell -Command "
-            \$zip = 'sonar-scanner.zip';
-            Invoke-WebRequest -Uri https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-windows.zip -OutFile \$zip;
-            Expand-Archive -Path \$zip -DestinationPath .;
-          "
+          $zip = "sonar-scanner.zip"
+          Invoke-WebRequest -Uri "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-windows.zip" -OutFile $zip
+          Expand-Archive -Path $zip -DestinationPath "./sonar-scanner"
 
       # Chạy SonarScanner trực tiếp trên Windows runner
       - name: Run SonarScanner
-        run: |
-          .\sonar-scanner-4.8.0.2856-windows\bin\sonar-scanner.bat ^
-            -Dsonar.projectKey=your_project_key ^
-            -Dsonar.sources=. ^
-            -Dsonar.host.url=%SONAR_HOST_URL% ^
-            -Dsonar.login=%SONAR_TOKEN%
         shell: cmd
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        run: |
+          sonar-scanner\bin\sonar-scanner.bat `
+            -Dsonar.projectKey=your_project_key `
+            -Dsonar.sources=. `
+            -Dsonar.host.url=%SONAR_HOST_URL% `
+            -Dsonar.login=%SONAR_TOKEN%
+
