@@ -13,14 +13,33 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Shallow clones should be disabled for a better relevancy of analysis
-      - uses: SonarSource/sonarqube-scan-action@v5
+          fetch-depth: 0
+
+      # Cài đặt JDK (nếu runner chưa có sẵn Java)
+      - name: Setup Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Download và giải nén SonarScanner CLI (nếu chưa có trên runner)
+      - name: Download SonarScanner
+        run: |
+          powershell -Command "
+            \$zip = 'sonar-scanner.zip';
+            Invoke-WebRequest -Uri https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-4.8.0.2856-windows.zip -OutFile \$zip;
+            Expand-Archive -Path \$zip -DestinationPath .;
+          "
+
+      # Chạy SonarScanner trực tiếp trên Windows runner
+      - name: Run SonarScanner
+        run: |
+          .\sonar-scanner-4.8.0.2856-windows\bin\sonar-scanner.bat ^
+            -Dsonar.projectKey=your_project_key ^
+            -Dsonar.sources=. ^
+            -Dsonar.host.url=%SONAR_HOST_URL% ^
+            -Dsonar.login=%SONAR_TOKEN%
+        shell: cmd
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-      # If you wish to fail your job when the Quality Gate is red, uncomment the
-      # following lines. This would typically be used to fail a deployment.
-      # - uses: SonarSource/sonarqube-quality-gate-action@v1
-      #   timeout-minutes: 5
-      #   env:
-      #     SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
