@@ -10,6 +10,7 @@ jobs:
     env:
       SONAR_SCANNER_VERSION: 7.1.0.4889
       SONAR_SCANNER_OS: linux
+      SONAR_ARCHITECHTURE: x64
       SONAR_PROCJECT_KEY: github-actions-test-sonar
       SONAR_URL: http://localhost:9000/
     steps:
@@ -29,7 +30,7 @@ jobs:
 
       - name: Download SonarScanner CLI
         run: |
-          curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-${{ env.SONAR_SCANNER_OS }}.zip
+          curl -sSLo sonar-scanner.zip https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-${{ env.SONAR_SCANNER_VERSION }}-${{ env.SONAR_SCANNER_OS }}-${{ env.SONAR_ARCHITECHTURE }}.zip
           unzip sonar-scanner.zip
 
       - name: Run SonarScanner
