@@ -34,11 +34,9 @@ jobs:
           unzip sonar-scanner.zip
 
       - name: Run SonarScanner
-        env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TEST }}
         run: |
           ./sonar-scanner-*/bin/sonar-scanner \
             -Dsonar.projectKey={{ SONAR_PROCJECT_KEY }} \
             -Dsonar.sources=. \
             -Dsonar.host.url={{ SONAR_URL }} \
-            -Dsonar.login=${{ SONAR_TOKEN }}
+            -Dsonar.login=${{ secrets.SONAR_TEST }}
