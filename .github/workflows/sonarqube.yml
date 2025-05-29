@@ -26,7 +26,8 @@ jobs:
       - name: Download SonarScanner
         run: |
           $zip = "sonar-scanner.zip"
-          Invoke-WebRequest -Uri "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.0.2.4839-windows-x64.zip" -OutFile $zip
+          $headers = @{ "User-Agent" = "Mozilla/5.0 (Windows NT 10.0; Win64; x64)" }
+          Invoke-WebRequest -Uri "https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-7.0.2.4839-windows-x64.zip" -OutFile $zip -Headers $headers
           Expand-Archive -Path $zip -DestinationPath "."
           Rename-Item -Path "sonar-scanner-cli-7.0.2.4839-windows-x64" -NewName "sonar-scanner"
 
