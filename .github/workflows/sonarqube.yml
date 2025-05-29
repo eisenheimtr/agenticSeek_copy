@@ -37,8 +37,8 @@ jobs:
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         run: |
           sonar-scanner\bin\sonar-scanner.bat `
-            -Dsonar.projectKey=your_project_key `
-            -Dsonar.sources=. `
-            -Dsonar.host.url=%SONAR_HOST_URL% `
-            -Dsonar.login=%SONAR_TOKEN%
+            -D"sonar.projectKey=your_project_key" `
+            -D"sonar.sources=." `
+            -D"sonar.host.url=%SONAR_HOST_URL%" `
+            -D"sonar.login=%SONAR_TOKEN%"
 
