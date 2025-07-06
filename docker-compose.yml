@@ -62,13 +62,14 @@ services:
     environment:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true
-      - BACKEND_URL=http://backend:8000
+      - BACKEND_URL=http://host.docker.internal:9000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - agentic-seek-net
-  
-  # NOTE: backend service is not working yet due to issue with chromedriver on docker.
-  # Therefore backend is run on host machine.
-  # Open to pull requests to fix this.
+    
+
+ 
 
   #backend:
   #  container_name: backend

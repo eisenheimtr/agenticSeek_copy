@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
 import axios from 'axios';
 import './App.css';
-import { colors } from './colors';
 
 function App() {
     const [query, setQuery] = useState('');
@@ -16,6 +15,7 @@ function App() {
     const [expandedReasoning, setExpandedReasoning] = useState(new Set());
     const messagesEndRef = useRef(null);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useEffect(() => {
         const intervalId = setInterval(() => {
             checkHealth();
@@ -39,11 +39,11 @@ function App() {
     const fetchScreenshot = async () => {
         try {
             const timestamp = new Date().getTime();
-            const res = await axios.get(`http://127.0.0.1:8000/screenshots/updated_screen.png?timestamp=${timestamp}`, {
+            const response = await axios.get(`http://127.0.0.1:8000/screenshots/updated_screen.png?timestamp=${timestamp}`, {
                 responseType: 'blob'
             });
             console.log('Screenshot fetched successfully');
-            const imageUrl = URL.createObjectURL(res.data);
+            const imageUrl = URL.createObjectURL(response.data);
             setResponseData((prev) => {
                 if (prev?.screenshot && prev.screenshot !== 'placeholder.png') {
                     URL.revokeObjectURL(prev.screenshot);
@@ -69,7 +69,7 @@ function App() {
             .trim()
             .toLowerCase()
             .replace(/\s+/g, ' ')
-            .replace(/[.,!?]/g, '')
+            .replace(/[.,!?]/g, '');
     };
 
     const scrollToBottom = () => {
@@ -90,17 +90,17 @@ function App() {
 
     const fetchLatestAnswer = async () => {
         try {
-            const res = await axios.get('http://127.0.0.1:8000/latest_answer');
-            const data = res.data;
-
+            const response = await axios.get('http://127.0.0.1:8000/latest_answer');
+            const data = response.data;
             updateData(data);
-            if (!data.answer || data.answer.trim() === '') {
-                return;
-            }
+
+            if (!data.answer || data.answer.trim() === '') return;
+
             const normalizedNewAnswer = normalizeAnswer(data.answer);
             const answerExists = messages.some(
                 (msg) => normalizeAnswer(msg.content) === normalizedNewAnswer
             );
+
             if (!answerExists) {
                 setMessages((prev) => [
                     ...prev,
@@ -126,7 +126,7 @@ function App() {
     const updateData = (data) => {
         setResponseData((prev) => ({
             ...prev,
-            blocks: data.blocks || prev.blocks || null,
+            blocks: data.blocks || prev?.blocks || null,
             done: data.done,
             answer: data.answer,
             agent_name: data.agent_name,
@@ -141,20 +141,18 @@ function App() {
         setIsLoading(false);
         setError(null);
         try {
-            const res = await axios.get('http://127.0.0.1:8000/stop');
+            await axios.get('http://127.0.0.1:8000/stop');
             setStatus("Requesting stop...");
         } catch (err) {
             console.error('Error stopping the agent:', err);
         }
-    }
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         checkHealth();
-        if (!query.trim()) {
-            console.log('Empty query');
-            return;
-        }
+        if (!query.trim()) return;
+
         setMessages((prev) => [...prev, { type: 'user', content: query }]);
         setIsLoading(true);
         setError(null);
@@ -162,14 +160,12 @@ function App() {
         try {
             console.log('Sending query:', query);
             setQuery('waiting for response...');
-            const res = await axios.post('http://127.0.0.1:8000/query', {
+            const response = await axios.post('http://127.0.0.1:8000/query', {
                 query,
                 tts_enabled: false
             });
             setQuery('Enter your query...');
-            console.log('Response:', res.data);
-            const data = res.data;
-            updateData(data);
+            updateData(response.data);
         } catch (err) {
             console.error('Error:', err);
             setError('Failed to process query.');
@@ -178,7 +174,6 @@ function App() {
                 { type: 'error', content: 'Error: Unable to get a response.' },
             ]);
         } finally {
-            console.log('Query completed');
             setIsLoading(false);
             setQuery('');
         }
@@ -187,18 +182,17 @@ function App() {
     const handleGetScreenshot = async () => {
         try {
             setCurrentView('screenshot');
-        } catch (err) {
+        } catch {
             setError('Browser not in use');
         }
     };
 
     return (
         <div className="app">
-            <header className="header">
-                <h1>AgenticSeek</h1>
-            </header>
+            <header className="header"><h1>AgenticSeek</h1></header>
             <main className="main">
                 <div className="app-sections">
+                    {/* Chat Section */}
                     <div className="chat-section">
                         <h2>Chat Interface</h2>
                         <div className="messages">
@@ -206,33 +200,24 @@ function App() {
                                 <p className="placeholder">No messages yet. Type below to start!</p>
                             ) : (
                                 messages.map((msg, index) => (
-                                    <div
-                                        key={index}
-                                        className={`message ${
-                                            msg.type === 'user'
-                                                ? 'user-message'
-                                                : msg.type === 'agent'
-                                                ? 'agent-message'
-                                                : 'error-message'
-                                        }`}
-                                    >
+                                    <div key={index} className={`message ${msg.type}-message`}>
                                         <div className="message-header">
                                             {msg.type === 'agent' && (
-                                                <span className="agent-name">{msg.agentName}</span>
-                                            )}
-                                            {msg.type === 'agent' && msg.reasoning && expandedReasoning.has(index) && (
-                                                <div className="reasoning-content">
-                                                    <ReactMarkdown>{msg.reasoning}</ReactMarkdown>
-                                                </div>
-                                            )}
-                                            {msg.type === 'agent' && (
-                                                <button 
-                                                    className="reasoning-toggle"
-                                                    onClick={() => toggleReasoning(index)}
-                                                    title={expandedReasoning.has(index) ? "Hide reasoning" : "Show reasoning"}
-                                                >
-                                                    {expandedReasoning.has(index) ? '▼' : '▶'} Reasoning
-                                                </button>
+                                                <>
+                                                    <span className="agent-name">{msg.agentName}</span>
+                                                    {msg.reasoning && expandedReasoning.has(index) && (
+                                                        <div className="reasoning-content">
+                                                            <ReactMarkdown>{msg.reasoning}</ReactMarkdown>
+                                                        </div>
+                                                    )}
+                                                    <button
+                                                        className="reasoning-toggle"
+                                                        onClick={() => toggleReasoning(index)}
+                                                        title={expandedReasoning.has(index) ? "Hide reasoning" : "Show reasoning"}
+                                                    >
+                                                        {expandedReasoning.has(index) ? '▼' : '▶'} Reasoning
+                                                    </button>
+                                                </>
                                             )}
                                         </div>
                                         <div className="message-content">
@@ -253,15 +238,12 @@ function App() {
                                 placeholder="Type your query..."
                                 disabled={isLoading}
                             />
-                            <button type="submit" disabled={isLoading}>
-                                Send
-                            </button>
-                            <button onClick={handleStop}>
-                                Stop
-                            </button>
+                            <button type="submit" disabled={isLoading}>Send</button>
+                            <button onClick={handleStop}>Stop</button>
                         </form>
                     </div>
 
+                    {/* Computer Section */}
                     <div className="computer-section">
                         <h2>Computer View</h2>
                         <div className="view-selector">
@@ -282,17 +264,15 @@ function App() {
                             {error && <p className="error">{error}</p>}
                             {currentView === 'blocks' ? (
                                 <div className="blocks">
-                                    {responseData && responseData.blocks && Object.values(responseData.blocks).length > 0 ? (
+                                    {responseData?.blocks && Object.values(responseData.blocks).length > 0 ? (
                                         Object.values(responseData.blocks).map((block, index) => (
                                             <div key={index} className="block">
                                                 <p className="block-tool">Tool: {block.tool_type}</p>
                                                 <pre>{block.block}</pre>
                                                 <p className="block-feedback">Feedback: {block.feedback}</p>
-                                                {block.success ? (
-                                                    <p className="block-success">Success</p>
-                                                ) : (
-                                                    <p className="block-failure">Failure</p>
-                                                )}
+                                                <p className={block.success ? 'block-success' : 'block-failure'}>
+                                                    {block.success ? 'Success' : 'Failure'}
+                                                </p>
                                             </div>
                                         ))
                                     ) : (
